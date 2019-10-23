@@ -1,16 +1,14 @@
 import React, { PureComponent } from "react"
 import PropTypes from "prop-types"
-import { Container, Row, Col } from "reactstrap"
 import { connect as reduxConnect } from "react-redux"
 import { withRouter } from "react-router-dom"
 import { RouterPush, RouterLinkPush } from "../../helpers/routing"
-import "./styles.css"
 
 const mapStateToProps = ({}) => ({})
 
 const mapDispatchToProps = {}
 
-class Template extends PureComponent {
+class Figurine extends PureComponent {
   constructor(props) {
     super(props)
 
@@ -19,14 +17,20 @@ class Template extends PureComponent {
 
   static propTypes = {}
 
-  static defaultProps = {}
+  static defaultProps = {
+    style: {
+      position: "absolute",
+      top: 200,
+      left: 24,
+      height: 36,
+      width: 36,
+      borderRadius: "50%",
+      backgroundColor: "red"
+    }
+  }
 
   componentWillMount() {
     this.getState(this.props)
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return true
   }
 
   componentWillUpdate(nextProps, nextState) {}
@@ -38,7 +42,12 @@ class Template extends PureComponent {
   }
 
   getState = props => {
-    this.setState({})
+    const { xPosition, yPosition } = props
+    let { style } = props
+
+    style = { ...style, top: yPosition, left: xPosition }
+
+    this.setState({ style })
   }
 
   componentDidUpdate(prevProps, prevState) {}
@@ -46,15 +55,10 @@ class Template extends PureComponent {
   componentWillUnmount() {}
 
   render() {
-    return (
-      <Container className="Template Container">
-        <Row>
-          <Col xs={12}>Template</Col>
-        </Row>
-      </Container>
-    )
+    const { style } = this.state
+    return <div style={style}>Fig</div>
   }
 }
 export default withRouter(
-  reduxConnect(mapStateToProps, mapDispatchToProps)(Template)
+  reduxConnect(mapStateToProps, mapDispatchToProps)(Figurine)
 )

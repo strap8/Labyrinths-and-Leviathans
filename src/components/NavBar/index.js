@@ -1,9 +1,10 @@
-import React, { PureComponent } from "react";
-import { connect as reduxConnect } from "react-redux";
-import { withRouter, Link } from "react-router-dom";
-import { RouteMap } from "../../ReactRouter/routes";
-import PropTypes from "prop-types";
-import "./styles.css";
+import React, { PureComponent } from "react"
+import { connect as reduxConnect } from "react-redux"
+import { withRouter, Link } from "react-router-dom"
+import { RouterPush, RouterLinkPush } from "../../helpers/routing"
+import { RouteMap } from "../../ReactRouter/routes"
+import PropTypes from "prop-types"
+import "./styles.css"
 import {
   Collapse,
   Navbar,
@@ -18,54 +19,54 @@ import {
   DropdownItem,
   Button,
   Media
-} from "reactstrap";
-import { RouterPush, RouterLinkPush } from "../../helpers/routing";
-import { Logout } from "../../actions/User";
-import Hamburger from "../Hamburger/Hamburger";
-import Leviathan from "../../images/Leviathan.png";
-const mapStateToProps = ({ User, Window }) => ({ User, Window });
+} from "reactstrap"
 
-const mapDispatchToProps = { Logout };
+import { Logout } from "../../actions/User"
+import Hamburger from "../Hamburger/Hamburger"
+import Leviathan from "../../images/Leviathan.png"
+const mapStateToProps = ({ User, Window }) => ({ User, Window })
+
+const mapDispatchToProps = { Logout }
 
 class NavBar extends PureComponent {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       collapsed: true
-    };
+    }
   }
 
   static propTypes = {
     User: PropTypes.object,
     Logout: PropTypes.func.isRequired
-  };
+  }
 
-  static defaultProps = {};
+  static defaultProps = {}
 
   componentWillMount() {
-    this.getState(this.props);
+    this.getState(this.props)
   }
 
   componentDidMount() {}
 
   componentWillReceiveProps(nextProps) {
-    this.getState(nextProps);
+    this.getState(nextProps)
   }
 
   getState = props => {
-    this.setState({});
-  };
+    this.setState({})
+  }
 
   toggleHamburgerMenu = () =>
-    this.setState({ collapsed: !this.state.collapsed });
+    this.setState({ collapsed: !this.state.collapsed })
 
-  closeHamburgerMenu = () => this.setState({ collapsed: true });
+  closeHamburgerMenu = () => this.setState({ collapsed: true })
 
-  renderNavLinks = () => [this.renderNavlink(RouteMap.SETTINGS, "SETTINGS", 1)];
+  renderNavLinks = () => [this.renderNavlink(RouteMap.SETTINGS, "SETTINGS", 1)]
 
   renderNavlink = (route, title, key) => {
-    const { history } = this.props;
+    const { history } = this.props
     return (
       <NavItem key={key}>
         <NavLink
@@ -77,19 +78,19 @@ class NavBar extends PureComponent {
           {title}
         </NavLink>
       </NavItem>
-    );
-  };
+    )
+  }
 
   renderBrandOrExlporeAndUniversities = isMobile =>
-    isMobile ? this.renderSonderBrand : this.renderExlporeAndUniversities;
+    isMobile ? this.renderSonderBrand : this.renderExlporeAndUniversities
 
   render() {
-    const { collapsed } = this.state;
-    const { User, Window, history, Logout } = this.props;
-    const { isMobile } = Window;
+    const { collapsed } = this.state
+    const { User, Window, history, Logout } = this.props
+    const { isMobile } = Window
     const UserName =
-      User.token && (User.first_name || User.username).toUpperCase();
-    const UserPicture = User.uploaded_picture || User.picture;
+      User.token && (User.first_name || User.username).toUpperCase()
+    const UserPicture = User.uploaded_picture || User.picture
     return (
       <Navbar className="NavBar" fixed="top" expand="md">
         <NavbarBrand
@@ -114,10 +115,10 @@ class NavBar extends PureComponent {
           </Nav>
         </Collapse>
       </Navbar>
-    );
+    )
   }
 }
 
 export default withRouter(
   reduxConnect(mapStateToProps, mapDispatchToProps)(NavBar)
-);
+)
