@@ -1,17 +1,10 @@
-.Home {
-  margin-top: 20px;
-  color: var(--tertiarycolor);
+.Home {}
+
+.AboutFeatureIcon {
+  font-size: 8em;
 }
-.Home iframe {
-  padding: 0;
-  margin: 0;
-}
-.Home h1 {
-  text-align: center;
-  margin: 0;
-}
-.TitleBreak {
-  width: 100%;
-  border-top: 4px solid black;
-  margin-bottom: 8px;
+
+.AboutFeatureImage {
+  width: auto;
+  height: 128px;
 }

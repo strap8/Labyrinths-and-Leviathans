@@ -1,209 +1,293 @@
-import React, { Component, createRef } from 'react'
-import PropTypes from 'prop-types'
-import { FixedSizeList, shouldComponentUpdate } from 'react-window'
-import './styles.css'
+import React, { PureComponent, createRef, Fragment } from "react"
+import PropTypes from "prop-types"
+import BasicList from "../BasicList"
+import UseDebounce from "../UseDebounce"
+import {
+  getSearchValue,
+  filterList,
+  getTextWidth,
+  mergeLists
+} from "./functions"
+
+import "./styles.css"
 
 const TIME_TO_WAIT_FOR_LIST_ITEM_ON_CLICK = 200
 
-class SearchList extends Component {
+class SearchList extends PureComponent {
   constructor(props) {
     super(props)
-    this.listRef = createRef()
     this.searchListRef = createRef()
-    const { list, listItemIdProp, listItemValueProp, defaultIdValue } = props
+    const {
+      initiallyRenderList,
+      list,
+      defaultValue,
+      value,
+      height,
+      width,
+      showList
+    } = props
 
-    const defaultValueIndex = list.findIndex(e => e[listItemIdProp] === defaultIdValue)
-    const searchValue =
-      defaultValueIndex !== -1 ? list[defaultValueIndex][listItemValueProp] : 'None'
+    const searchValue = defaultValue || getSearchValue(list, value)
 
     this.state = {
-      showList: false,
+      initiallyRenderList,
+      showList,
       showDropDownIcon: true,
       searchValue,
-      orginalList: list
+      typingSearchValue: false,
+      list,
+      height,
+      width,
+      value,
+      searchListRef: {}
     }
   }
 
   static propTypes = {
-    defaultIdValue: PropTypes.string,
-    list: PropTypes.array.isRequired,
-    listItemIdProp: PropTypes.string,
-    listItemValueProp: PropTypes.string,
-    onListItemClick: PropTypes.func.isRequired,
+    // Input / list props
+    defaultValue: PropTypes.string,
+
+    list: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.any.isRequired,
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+          .isRequired,
+        otherValue: PropTypes.any
+      }).isRequired
+    ),
+    cacheList: PropTypes.bool,
+
     placeholder: PropTypes.string,
-    helperText: PropTypes.string
+    helperText: PropTypes.string,
+    maxHeight: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    itemSize: PropTypes.number.isRequired,
+    listPosition: PropTypes.oneOf([
+      "static",
+      "absolute",
+      "fixed",
+      "relative",
+      "sticky",
+      "initial",
+      "inherit"
+    ]),
+
+    // Callback props
+    onListItemClickCallback: PropTypes.func, // When an item is clicked
+    onChangeCallback: PropTypes.func, // When searching
+    onChangeCallbackDebounceDelay: PropTypes.number,
+    onBlurCallback: PropTypes.func,
+    onFocusCallback: PropTypes.func,
+    onScrollToBottomOfListCallback: PropTypes.func // When scrolled to the bottom of the list,
   }
 
   static defaultProps = {
-    placeholder: 'Search..',
-    listItemIdProp: 'id',
-    listItemValueProp: 'name'
+    placeholder: "Search...",
+    maxHeight: 250,
+    height: 250,
+    width: 300,
+    itemSize: 50,
+    list: [],
+    showList: false,
+    initiallyRenderList: true,
+    cacheList: false,
+    listPosition: "absolute",
+    onChangeCallbackDebounceDelay: 400
   }
 
-  componentWillMount() {
-    this.getState(this.props)
-  }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    let {
+      initiallyRenderList,
+      searchValue,
+      showList,
+      searchListRef,
+      typingSearchValue
+    } = prevState
+    const { defaultValue, itemSize, maxHeight, value, cacheList } = nextProps
+    let nextList = nextProps.list
 
-  shouldComponentUpdate = shouldComponentUpdate.bind(this)
-
-  componentWillUpdate(nextProps, nextState) {
-    const { list, listItemIdProp, defaultIdValue, listItemValueProp } = nextProps
-    const currentDefaultIdValue = this.props.defaultIdValue
-    const { searchValue } = nextState
-    if (currentDefaultIdValue !== defaultIdValue) {
-      if (searchValue !== 'All') {
-        const defaultValueIndex = list.findIndex(e => e[listItemIdProp] === defaultIdValue)
-        const searchValue =
-          defaultValueIndex !== -1 ? list[defaultValueIndex][listItemValueProp] : 'None'
-        this.setState({ searchValue })
-      }
+    if (cacheList) {
+      nextList = mergeLists(nextList, prevState.list)
     }
-  }
 
-  componentDidMount() {}
+    let list = filterList(nextList, searchValue, initiallyRenderList)
 
-  componentWillReceiveProps(nextProps) {
-    this.getState(nextProps)
-  }
+    const listHeight = list.length * itemSize
 
-  getState = props => {
-    const { listItemIdProp, listItemValueProp } = props
+    const height = listHeight > maxHeight ? maxHeight : listHeight
 
-    const list = [
-      {
-        [listItemIdProp]: 'None',
-        [listItemValueProp]: 'None',
-        subscriptionService: false
-      },
-      {
-        [listItemIdProp]: 'All',
-        [listItemValueProp]: 'All',
-        subscriptionService: false
-      },
-      ...props.list
-    ]
+    if (!typingSearchValue) {
+      searchValue = getSearchValue(list, value)
+    }
 
-    this.setState({ list })
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const previousList = prevState.orginalList
-    const currentList = this.state.list
-    const currentSearchValue = this.state.searchValue
-    const { offsetWidth } = this.searchListRef.current
-    const currentSearchValueWidth = this.getTextWidth(currentSearchValue, '1rem system-ui')
+    const { clientWidth, offsetWidth } = searchListRef
+    const currentSearchValueWidth = getTextWidth(searchValue, "1rem system-ui")
     const listSearchDropDownIconOffset = 16
     const listSearchInputMaxWidth = offsetWidth - listSearchDropDownIconOffset
 
-    const largerList = previousList.length < currentList.length
-    const currentSearchValueOverflowed = currentSearchValueWidth > listSearchInputMaxWidth
+    const currentSearchValueOverflowed =
+      currentSearchValueWidth > listSearchInputMaxWidth
 
-    const orginalList = largerList ? currentList : previousList
     const showDropDownIcon = !currentSearchValueOverflowed
 
-    this.setState({ orginalList, showDropDownIcon })
+    return {
+      searchValue,
+      list,
+      height,
+      showList,
+      showDropDownIcon,
+      value,
+      searchListRef,
+      width: clientWidth
+    }
   }
 
-  componentWillUnmount() {}
-
-  getTextWidth = (text, font) => {
-    const canvas = document.createElement('canvas')
-    let context = canvas.getContext('2d')
-    context.font = font
-    const metrics = context.measureText(text)
-    return metrics.width
+  componentDidMount() {
+    this.setState({ searchListRef: this.searchListRef.current })
   }
 
   onListItemClick = (id, value) => {
-    const { onListItemClick } = this.props
-    onListItemClick(id, value)
-    this.setState({ searchValue: value, showDropDownIcon: true })
+    const { onListItemClickCallback } = this.props
+    if (onListItemClickCallback) {
+      onListItemClickCallback(id, value)
+    }
+    this.setState({ showDropDownIcon: true })
   }
 
   onSearchChange = e => {
     const { value } = e.target
-    const filteredList = this.filterList(value)
-    this.setState({ searchValue: value, list: filteredList })
+    this.setState({ searchValue: value, initiallyRenderList: false })
   }
 
-  filterList = (value, id) => {
-    const { listItemIdProp, listItemValueProp } = this.props
-    const { orginalList } = this.state
-    return !value || value === 'All' || value === 'None'
-      ? orginalList
-      : orginalList.filter(
-          item =>
-            !id
-              ? item[listItemValueProp].toUpperCase().includes(value.toUpperCase())
-              : item[listItemIdProp] === id
-        )
+  handleInputFocus = () => {
+    const { onFocusCallback } = this.props
+    const { searchValue } = this.state
+    if (onFocusCallback) onFocusCallback(searchValue)
+    this.setState({ showList: true })
   }
 
-  toggleList = () =>
-    this.setState(prevState => ({
-      showList: !prevState.showList
-    }))
+  handleInputBlur = () => {
+    const { onBlurCallback } = this.props
+    const { searchValue } = this.state
+    if (onBlurCallback) onBlurCallback(searchValue)
+    this.setState({ showList: false })
+  }
 
-  clearSearchValue = () => this.setState({ searchValue: '' })
+  handleDropDownIconClick = () => {
+    this.setState(prevState => {
+      const { placeholder } = this.props
+      const { searchValue, showList } = prevState
+      if (searchValue === placeholder && !showList) {
+        return {
+          showList: true,
+          searchValue: ""
+        }
+      } else {
+        return { showList: !showList }
+      }
+    })
+  }
 
-  renderProjectList = ({ data, index, style, isScrolling }) => {
-    const { listItemIdProp, listItemValueProp } = this.props
-    const item = data[index]
-    const id = item[listItemIdProp]
-    const value = item[listItemValueProp]
-    if (!(id && value)) {
-      console.log(
-        "No id or value found! Pass in the correct listItemIdProp={'someId'} and listItemValueProp={'someValue'} into the <SearchList /> component"
-      )
-    }
-
-    return (
-      <div
-        className="listSearchItem"
-        style={style}
-        key={id}
-        id={id}
-        value={value}
-        onClick={() => this.onListItemClick(id, value)}
-      >
-        {value}
-      </div>
-    )
+  handleDropDownIconBlur = () => {
+    const { onBlurCallback } = this.props
+    const { searchValue } = this.state
+    if (onBlurCallback) onBlurCallback(searchValue)
+    this.setState({ showList: false })
   }
 
   render() {
-    const { placeholder, helperText } = this.props
-    const { showList, showDropDownIcon, list, searchValue } = this.state
+    const {
+      placeholder,
+      helperText,
+      itemSize,
+      onChangeCallbackDebounceDelay,
+      onChangeCallback,
+      listPosition,
+      onScrollToBottomOfListCallback
+    } = this.props
+    const {
+      showList,
+      showDropDownIcon,
+      list,
+      searchValue,
+      height,
+      width
+    } = this.state
     return (
-      <div className="listSearchContainer">
-        <div className="listSearchInputDropDown">
-          <input
-            ref={this.searchListRef}
-            className="listSearchInput"
-            type="text"
+      <Fragment>
+        {onChangeCallback && (
+          <UseDebounce
             value={searchValue}
-            placeholder={placeholder}
-            onChange={this.onSearchChange}
-            onFocus={() => this.toggleList()}
-            onBlur={() => setTimeout(this.toggleList, TIME_TO_WAIT_FOR_LIST_ITEM_ON_CLICK)}
+            onChangeCallback={onChangeCallback}
+            delay={onChangeCallbackDebounceDelay}
           />
-          {showDropDownIcon && <i className="listSearchDropDownIcon" onClick={this.toggleList} />}
-        </div>
-        {showList && (
-          <FixedSizeList
-            ref={this.listRef}
-            className="listSearchItemsContainer fade-in"
-            height={250}
-            width="calc(100% - 16px)"
-            itemData={list}
-            itemCount={list.length}
-            itemSize={50}
-          >
-            {this.renderProjectList}
-          </FixedSizeList>
         )}
-        {helperText && <p className="listSearchHelper">{helperText}</p>}
-      </div>
+        <div className="listSearchContainer">
+          <div className="listSearchInputDropDown">
+            <input
+              ref={this.searchListRef}
+              className="listSearchInput"
+              type="text"
+              value={searchValue}
+              placeholder={placeholder}
+              onChange={this.onSearchChange}
+              onFocus={e => {
+                e.target.select()
+                this.setState({ typingSearchValue: true })
+                setTimeout(
+                  this.handleInputFocus,
+                  TIME_TO_WAIT_FOR_LIST_ITEM_ON_CLICK
+                )
+              }}
+              onBlur={() => {
+                this.setState({ typingSearchValue: false })
+                setTimeout(
+                  this.handleInputBlur,
+                  TIME_TO_WAIT_FOR_LIST_ITEM_ON_CLICK
+                )
+              }}
+            />
+
+            {showDropDownIcon && (
+              <i
+                className={`listSearchDropDownIcon ${showList ? "Up" : "Down"}`}
+                tabIndex="1"
+                onClick={this.handleDropDownIconClick}
+                onBlur={() =>
+                  setTimeout(
+                    this.handleDropDownIconBlur,
+                    TIME_TO_WAIT_FOR_LIST_ITEM_ON_CLICK
+                  )
+                }
+              />
+            )}
+          </div>
+          {showList &&
+            (list.length > 0 ? (
+              <BasicList
+                listPosition={listPosition}
+                height={height}
+                width={width}
+                list={list}
+                itemSize={itemSize}
+                listItemHoverable
+                onScrollToBottomOfListCallback={onScrollToBottomOfListCallback}
+                onListItemClickCallback={this.onListItemClick}
+              />
+            ) : (
+              <div
+                className="listSearchItemsContainer fade-in"
+                style={{ height: itemSize, width: width, position: "absolute" }}
+              >
+                <div className="noHover" style={{ padding: itemSize / 4 }}>
+                  No results
+                </div>
+              </div>
+            ))}
+          {helperText && <p className="listSearchHelper">{helperText}</p>}
+        </div>
+      </Fragment>
     )
   }
 }

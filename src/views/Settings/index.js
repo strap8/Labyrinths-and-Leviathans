@@ -1,138 +1,71 @@
-import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
-import { Container, Row, Col, FormGroup, Label, Input, Tooltip } from "reactstrap";
-import { connect as reduxConnect } from "react-redux";
-import "./styles.css";
-import { GetUserSettings, PostSettings, SetSettings } from "../../actions/Settings";
+import React, { Fragment, memo } from "react"
+import PropTypes from "prop-types"
+import { UserProps } from "../../redux/User/propTypes"
+import { withRouter } from "react-router-dom"
+import { BasicTabs, Header } from "../../components"
+import EntryStatistics from "./EntryStatistics"
+import { RouterPush, RouteMap } from "../../routes"
+import { Container, Row, Col } from "reactstrap"
+import AccountDetails from "./AccountDetails"
+import UpdateProfile from "./UpdateProfile"
+import Sections from "./Sections"
+import "./styles.css"
 
-const mapStateToProps = ({ User }) => ({ User });
+const {
+  SETTINGS,
+  SETTINGS_ENTRIES,
+  SETTINGS_PREFERENCES,
+  SETTINGS_PROFILE
+} = RouteMap
 
-const mapDispatchToProps = { GetUserSettings, PostSettings, SetSettings };
+const Settings = ({ history, location: { pathname } }) => {
+  if (pathname === SETTINGS) RouterPush(history, SETTINGS_ENTRIES)
+  const activeTab = pathname
 
-class Settings extends PureComponent {
-  constructor(props) {
-    super(props);
+  const handleTabChange = tabId => RouterPush(history, tabId)
 
-    this.state = { ShowFooterTooltip: false, ShowPushMessagesTooltip: false };
-  }
-
-  static propTypes = {
-    Settings: PropTypes.object,
-    ShowFooterTooltip: PropTypes.bool,
-    ShowPushMessagesTooltip: PropTypes.bool,
-    GetUserSettings: PropTypes.func.isRequired,
-    PostSettings: PropTypes.func.isRequired,
-    SetSettings: PropTypes.func.isRequired
-  };
-
-  static defaultProps = {};
-
-  componentWillMount() {
-    this.getState(this.props);
-  }
-
-  componentDidMount() {
-    const { User, GetUserSettings } = this.props;
-    if (User.token) GetUserSettings(User.token, User.id);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.getState(nextProps);
-  }
-
-  getState = props => {
-    const { User } = props;
-    this.setState({ User });
-  };
-
-  toggleTooltip = e => this.setState({ [e.target.id]: !this.state[e.target.id] });
-
-  render() {
-    const { PostSettings, SetSettings } = this.props;
-    const { User, ShowFooterTooltip, ShowPushMessagesTooltip } = this.state;
-    const { Settings } = User;
-    const { show_footer, push_messages } = Settings;
-    return (
-      <Container className="Settings Container">
-        <Row>
-          <h1 className="pageHeader">SETTINGS</h1>
-        </Row>
-        <Row>
-          <h2 className="headerBanner">Appearance</h2>
-        </Row>
-        <Row className="checkBoxTable">
-          <Col xs={12}>
-            <FormGroup check>
-              <Label check>
-                <Input
-                  type="radio"
-                  disabled={!User.id}
-                  checked={show_footer}
-                  onClick={() =>
-                    !Settings.id
-                      ? PostSettings(User.token, {
-                          user: User.id,
-                          show_footer: !show_footer
-                        })
-                      : SetSettings(User.token, Settings.id, {
-                          show_footer: !show_footer
-                        })
-                  }
-                />
-                <span className="checkBoxText" id="ShowFooterTooltip">
-                  Show footer
-                </span>
-                <Tooltip
-                  placement="right"
-                  isOpen={ShowFooterTooltip}
-                  target="ShowFooterTooltip"
-                  toggle={this.toggleTooltip}
-                >
-                  Toggles the view of the footer
-                </Tooltip>
-              </Label>
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row>
-          <h2 className="headerBanner">Features</h2>
-        </Row>
-        <Row className="checkBoxTable">
-          <Col xs={12}>
-            <FormGroup check>
-              <Label check>
-                <Input
-                  type="radio"
-                  disabled={!User.id}
-                  checked={push_messages}
-                  onClick={() =>
-                    !Settings.id
-                      ? PostSettings(User.token, {
-                          user: User.id,
-                          push_messages: !push_messages
-                        })
-                      : SetSettings(User.token, Settings.id, {
-                          push_messages: !push_messages
-                        })
-                  }
-                />
-                <span className="checkBoxText" id="ShowPushMessagesTooltip">
-                  Push messages
-                </span>
-                <Tooltip
-                  placement="right"
-                  isOpen={ShowPushMessagesTooltip}
-                  target="ShowPushMessagesTooltip"
-                  toggle={this.toggleTooltip}
-                >
-                  Toggles frequent fetches of messages
-                </Tooltip>
-              </Label>
-            </FormGroup>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+  const tabs = [
+    {
+      tabId: SETTINGS_PROFILE,
+      title: "Profile",
+      className: "mt-2",
+      render: (
+        <Fragment>
+          <AccountDetails />
+          <UpdateProfile />
+        </Fragment>
+      ),
+      onClickCallback: handleTabChange
+    },
+    {
+      tabId: SETTINGS_PREFERENCES,
+      title: "Preferences",
+      className: "mt-2",
+      render: <Sections />,
+      onClickCallback: handleTabChange
+    }
+  ]
+  return (
+    <Container className="Settings Container">
+      <Row>
+        <Col xs={12} className="Center mt-3">
+          <Header>
+            <i className="fa fa-cog mr-2" />
+            SETTINGS
+          </Header>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={12} className="p-0">
+          <BasicTabs activeTab={activeTab} tabs={tabs} />
+        </Col>
+      </Row>
+    </Container>
+  )
 }
-export default reduxConnect(mapStateToProps, mapDispatchToProps)(Settings);
+
+Settings.propTypes = {
+  User: UserProps
+}
+
+export default withRouter(memo(Settings))

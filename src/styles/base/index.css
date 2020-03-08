@@ -1,22 +1,30 @@
-@import "./stylesM.css";
+@import "./animations/index.css";
 .App {
-  height: 100%;
-  width: 100%;
-  touch-action: none;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  /* color: white; */
+}
+
+.RouteOverlay {
   overflow-x: hidden;
   overflow-y: auto;
-  font-family: "Lato", sans-serif;
+  position: absolute;
+  z-index: 102;
+  top: var(--navBarHeight);
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .Container {
   touch-action: pan-x;
   touch-action: pan-y;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  color: var(--secondaryColor);
 }
 
 .Center {
   text-align: center;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
 
@@ -56,17 +64,44 @@ a, a:hover {
   text-align: center;
 }
 
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    height: 5px;
-    width: 5px;
-  }
+input[type=text], input[type=email], input[type=password] {
+  min-height: var(--inputHeight);
+  padding: 0.5rem !important;
+  border: inherit;
+  background: var(--quinaryColor) !important;
+  color: var(--secondaryColor);
 }
+
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: var(--light_grey);
+  opacity: 1;
+  /* Firefox */
+}
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: var(--light_grey);
+}
+
+::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: var(--light_grey);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+/* *:hover {
+  transition: color 0.4s ease;
+  transition: background-color 0.4s ease;
+} */
 
 ::-webkit-scrollbar {
   display: none;
   background-color: transparent;
-  -webkit-border-radius: 100px;
+  -webkit-border-radius: 6px;
   transition: 200ms linear;
 }
 
@@ -78,14 +113,10 @@ a, a:hover {
 ::-webkit-scrollbar-track {
   /* box-shadow: inset 0 0 5px var(--grey);
   background: var(--grey; */
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--grey);
   border-radius: 6px;
-}
-
-input[type="file"] {
-  display: none;
 }

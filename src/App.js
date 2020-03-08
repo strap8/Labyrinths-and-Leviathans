@@ -1,86 +1,192 @@
-import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
-import { connect as reduxConnect } from "react-redux";
-import { withRouter, Redirect } from "react-router-dom";
-import NavBar from "./components/NavBar";
-import ReactRouter from "./ReactRouter";
-import Footer from "./components/Footer";
-import { saveState } from "./store/persist";
-import { setWindow } from "./actions/App";
-import { GetUserSettings } from "./actions/Settings";
-import "./styles/index.css";
+import React, { useEffect, useMemo, lazy, memo, Fragment } from "react"
+import PropTypes from "prop-types"
+import { UserProps } from "./redux/User/propTypes"
+import { connect as reduxConnect } from "react-redux"
+import { withRouter, Route, Switch, Redirect } from "react-router-dom"
+import { SetWindow, CheckAppVersion } from "./redux/App/actions"
+import { GetUserSettings } from "./redux/User/actions"
+import { SetCalendar } from "./redux/Calendar/Calendar"
+import {
+  SyncEntries,
+  GetUserEntries,
+  GetUserEntryTags
+} from "./redux/Entries/actions"
+import { RouteMap } from "./routes"
+import { GameBoard, Home } from "./views"
+import { NavBar, PrivacyPolicy } from "./components"
+import { RouterLinkPush } from "./routes"
+import memoizeProps from "./helpers/memoizeProps"
+import { useAddToHomescreenPrompt } from "./components/AddToHomeScreen/prompt"
 
-const mapStateToProps = ({ User }) => ({ User });
+const Account = lazy(() => import("./views/Account"))
+const Settings = lazy(() => import("./views/Settings"))
+const Support = lazy(() => import("./views/Support"))
+const PageNotFound = lazy(() => import("./views/PageNotFound"))
 
-const mapDispatchToProps = { setWindow, GetUserSettings, saveState };
+const FIFTEEN_MINUTES = 1000 * 60 * 15
 
-export class App extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+const {
+  HOME,
+  GAME,
+  ROOT,
+  NEW_ENTRY,
+  LOGIN,
+  SIGNUP,
+  PASSWORD_RESET,
+  SETTINGS,
+  SETTINGS_ENTRIES,
+  SETTINGS_PREFERENCES,
+  SETTINGS_PROFILE,
+  SUPPORT,
+  CALENDAR,
+  PRIVACY_POLICY
+} = RouteMap
 
-  static propTypes = {
-    User: PropTypes.objectOf(PropTypes.any),
-    setWindow: PropTypes.func.isRequired,
-    GetUserSettings: PropTypes.func.isRequired
-  };
+const mapStateToProps = ({ User, Window: { navBarHeight } }) => ({
+  User,
+  navBarHeight
+})
 
-  static defaultProps = {
-    setWindow,
-    GetUserSettings,
-    saveState
-  };
-
-  componentWillMount() {
-    this.getState(this.props);
-  }
-
-  componentDidMount() {
-    const { User, GetUserSettings } = this.props;
-    window.addEventListener("resize", this.updateWindowDimensions);
-    this.updateWindowDimensions();
-
-    if (User.token) GetUserSettings(User.token, User.id);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.getState(nextProps);
-  }
-
-  getState = props => {
-    const { saveState } = props;
-    saveState();
-    this.setState({});
-  };
-
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.updateWindowDimensions);
-  }
-
-  updateWindowDimensions = () => {
-    const { setWindow } = this.props;
-    const { innerHeight, innerWidth } = window;
-    const isMobile = innerWidth < 768;
-    setWindow({ innerHeight, innerWidth, isMobile });
-    this.setState({ height: innerHeight, width: innerWidth, isMobile });
-  };
-
-  render() {
-    const { history } = this.props;
-    const { pathname } = history.location;
-    return pathname === "/" ? (
-      <Redirect to="/home" />
-    ) : (
-      <div className="App">
-        <NavBar />
-        <ReactRouter />
-        <Footer />
-      </div>
-    );
-  }
+const mapDispatchToProps = {
+  SetWindow,
+  GetUserSettings,
+  CheckAppVersion,
+  SetCalendar,
+  SyncEntries,
+  GetUserEntries,
+  GetUserEntryTags
 }
 
+const App = ({
+  GetUserSettings,
+  User,
+  CheckAppVersion,
+  SetWindow,
+  SetCalendar,
+  SyncEntries,
+  GetUserEntries,
+  GetUserEntryTags,
+  history,
+  location,
+  match,
+  navBarHeight
+}) => {
+  const [prompt, promptToInstall] = useAddToHomescreenPrompt()
+  useEffect(() => {
+    const activeDate = new Date()
+
+    SetCalendar({ activeDate })
+
+    CheckAppVersion()
+
+    setInterval(() => CheckAppVersion(), FIFTEEN_MINUTES)
+
+    const handleResize = () => SetWindow()
+
+    window.addEventListener("resize", handleResize)
+
+    handleResize()
+
+    if (User.id) {
+      SyncEntries(() => new Promise(resolve => resolve(GetUserEntries(1))))
+      GetUserSettings()
+      GetUserEntryTags()
+    }
+
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
+  const renderRedirectOrComponent = (shouldRedirect, route, component) => {
+    return shouldRedirect
+      ? () => <Redirect push to={RouterLinkPush(history, route)} />
+      : component
+  }
+
+  const routeItems = [
+    {
+      path: [GAME],
+      Render: GameBoard
+    },
+    {
+      path: [ROOT, HOME],
+      Render: Home,
+      renderProps: { prompt, promptToInstall },
+      useRouteProps: true
+    },
+    {
+      path: [LOGIN, SIGNUP, PASSWORD_RESET],
+      component: renderRedirectOrComponent(User.token, NEW_ENTRY, Account)
+    },
+    {
+      path: [
+        SETTINGS,
+        SETTINGS_ENTRIES,
+        SETTINGS_PREFERENCES,
+        SETTINGS_PROFILE
+      ],
+      component: Settings
+    },
+    {
+      path: [SUPPORT],
+      component: Support
+    },
+    { path: [PRIVACY_POLICY], component: PrivacyPolicy }
+  ]
+
+  const renderRouteItems = useMemo(
+    () =>
+      routeItems.map((item, i) => {
+        const { path, component, Render, renderProps, useRouteProps } = item
+        return Render ? (
+          <Route
+            exact
+            key={i}
+            path={path}
+            render={routeProps =>
+              useRouteProps ? (
+                <Render {...renderProps} {...routeProps} />
+              ) : (
+                <Render {...renderProps} />
+              )
+            }
+          />
+        ) : (
+          <Route exact key={i} path={path} component={component} />
+        )
+      }),
+    [routeItems]
+  )
+
+  return (
+    <Fragment>
+      <NavBar />
+      <div className="App RouteOverlay">
+        <Switch>
+          {renderRouteItems}
+          <Route component={PageNotFound} />
+        </Switch>
+      </div>
+    </Fragment>
+  )
+}
+
+App.propTypes = {
+  User: UserProps,
+  navBarHeight: PropTypes.number.isRequired,
+  SetWindow: PropTypes.func.isRequired,
+  GetUserSettings: PropTypes.func.isRequired,
+  SetCalendar: PropTypes.func.isRequired,
+  SyncEntries: PropTypes.func.isRequired,
+  GetUserEntries: PropTypes.func.isRequired
+}
+
+const isEqual = (prevProps, nextProps) =>
+  memoizeProps(prevProps, nextProps, [
+    "User",
+    "routeOverlayHeight",
+    "navBarHeight"
+  ])
+
 export default withRouter(
-  reduxConnect(mapStateToProps, mapDispatchToProps)(App)
-);
+  reduxConnect(mapStateToProps, mapDispatchToProps)(memo(App, isEqual))
+)

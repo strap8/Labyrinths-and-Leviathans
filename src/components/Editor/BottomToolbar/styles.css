@@ -1,0 +1,54 @@
+:root {
+    --bottomToolbarHeight: 220px;
+    --bottomToolbarFilesHeight: 80px;
+    --bootmToolBarTagsHeight: 24px;
+}
+
+.ToggleBottomToolbarButton {
+    opacity: 0.1;
+    position: absolute;
+    left: 50%;
+}
+
+.ToggleBottomToolbarButton:hover {
+    opacity: 1;
+    z-index: 99;
+    color: var(--accentColor);
+}
+
+.BottomToolbarIsOpen {
+    bottom: calc(var(--bottomToolbarHeight));
+}
+
+.BottomToolbarIsClosed {
+    bottom: 0;
+}
+
+.BottomToolBar {
+    height: var(--bottomToolbarHeight);
+    opacity: var(--mainOpacity);
+    color: var(--secondaryColor);
+    background: var(--slate_grey)
+}
+
+.BottomToolBar i {
+    color: var(--secondaryColor);
+}
+
+.BottomToolBar .row {}
+
+.BottomToolBar:focus-within, .BottomToolBar:hover {
+    opacity: 1;
+}
+
+.BottomToolBarTags {
+    height: var(--bootmToolBarTagsHeight);
+}
+
+.BottomToolBarFiles {
+    height: var(--bottomToolbarFilesHeight);
+}
+
+.BottomToolButtonRow {
+    height: calc((100% - var(--bottomToolbarFilesHeight) - var(--bootmToolBarTagsHeight)) / 2);
+}

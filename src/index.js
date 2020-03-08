@@ -1,25 +1,40 @@
-import React, { Suspense } from "react";
-import ReactDOM from "react-dom";
-import storeFactory from "./store";
-import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App";
-import LoadingScreen from "./components/LoadingScreen";
-import * as serviceWorker from "./serviceWorker";
-import { getState } from "./store/persist";
+import "./styles/index.css"
+import React, { Suspense, lazy } from "react"
+import ReactDOM from "react-dom"
+import App from "./App"
+import storeFactory from "./redux"
+import { Provider } from "react-redux"
+import { BrowserRouter } from "react-router-dom"
+import { LoadingScreen } from "./components"
+import { PersistGate } from "redux-persist/integration/react"
+import * as serviceWorker from "./serviceWorker"
+const { store, persistor } = storeFactory()
 
-const initialState = getState();
-const ReduxStore = storeFactory(initialState);
+const AlertNotifications = lazy(() => import("./components/AlertNotifications"))
+const BackgroundImage = lazy(() => import("./components/BackgroundImage"))
+
+const { NODE_ENV } = process.env
+
+// const initialState = getReduxState()
+// const ReduxStore = storeFactory(initialState)
 
 ReactDOM.render(
-  <Provider store={ReduxStore}>
-    <BrowserRouter>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
       <Suspense fallback={<LoadingScreen />}>
-        <App />
+        <AlertNotifications />
+        <BrowserRouter>
+          <BackgroundImage />
+          <App />
+        </BrowserRouter>
       </Suspense>
-    </BrowserRouter>
+    </PersistGate>
   </Provider>,
   document.getElementById("root")
-);
+)
 
-serviceWorker.register();
+if (NODE_ENV === "development") {
+  serviceWorker.unregister()
+} else {
+  serviceWorker.register()
+}
