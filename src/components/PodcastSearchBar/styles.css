@@ -1,0 +1,27 @@
+.PodcastSearchBar input,
+.PodcastSearchBar .input-group-text {
+  border: 0;
+}
+
+.PodcastSearchBar ::placeholder {
+  color: black;
+}
+
+.TelescopeIconContainer {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  background: var(--quinaryColor);
+}
+
+.PodcastIcon {
+  color: var(--secondaryColor);
+  font-size: 32px;
+}
+
+.PodcastIcon:hover {
+  color: var(--accentColor);
+}
+
+.PodcastSearchBar:focus-within .PodcastIcon {
+  animation: fa-spin 0.8s alternate ease-in;
+}

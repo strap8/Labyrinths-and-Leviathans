@@ -1,11 +1,13 @@
-import React, { memo } from "react"
+import React from "react"
 import PropTypes from "prop-types"
+import { connect } from "../../store/provider"
 import { Container, Row, Col } from "reactstrap"
 import { Link } from "react-router-dom"
-import { RouteMap } from "../../routes"
 import "./styles.css"
 
-const Footer = () => (
+const mapStateToProps = ({ App: { version } }) => ({ version })
+
+const Footer = ({ version }) => (
   <Container fluid tag="footer" className="MainFooter">
     <Row>
       <Col xs={12}>
@@ -15,11 +17,16 @@ const Footer = () => (
       </Col>
     </Row>
     <Row className="Center">
+      <Col xs={12}>App Version: {version}</Col>
+    </Row>
+    <Row className="Center">
       <Col xs={12}>&copy; {new Date().getFullYear()} Nathan Foster</Col>
     </Row>
   </Container>
 )
 
-Footer.propTypes = {}
+Footer.propTypes = {
+  version: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+}
 
-export default memo(Footer)
+export default connect(mapStateToProps)(Footer)

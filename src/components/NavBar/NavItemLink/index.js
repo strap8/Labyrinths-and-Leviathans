@@ -1,8 +1,8 @@
-import React, { useState, useMemo, memo } from "react"
+import React, { memo } from "react"
 import PropTypes from "prop-types"
 import { NavItem, NavLink, DropdownItem } from "reactstrap"
 import { NavLink as RouterNavLink, withRouter } from "react-router-dom"
-import { RouterLinkPush } from "../../../routes"
+import { RouterLinkPush } from "../../../store/reducers/router/actions"
 import "./styles.css"
 
 const NavItemLink = ({
@@ -11,39 +11,34 @@ const NavItemLink = ({
   title,
   icon,
   onClick,
-  history,
   onClickCallback,
-  render
+  render,
 }) => {
-  const [reRender, forceUpdate] = useState(false)
+  const handleCLick = () => {
+    onClick && onClick()
+    onClickCallback && onClickCallback()
+  }
 
-  const renderNavLink = useMemo(
-    () =>
-      render || (
-        <NavItem key={title} tag="div">
-          <NavLink
-            activeClassName="active"
-            className="Navlink"
-            tag={RouterNavLink}
-            to={RouterLinkPush(history, route)}
-            onClick={() => {
-              forceUpdate(!reRender)
-              onClick && onClick()
-              onClickCallback && onClickCallback()
-            }}
-          >
-            {icon}
-            <span className="NavBarLink">{title}</span>
-          </NavLink>
-        </NavItem>
-      ),
-    [title]
-  )
+  const renderNavLink = () =>
+    render || (
+      <NavItem key={title} tag={"div"}>
+        <NavLink
+          activeClassName="active"
+          className="Navlink"
+          tag={RouterNavLink}
+          to={RouterLinkPush(route)}
+          onClick={handleCLick}
+        >
+          {icon}
+          <span className="NavBarLink">{title}</span>
+        </NavLink>
+      </NavItem>
+    )
 
   return dropdownItem ? (
-    <DropdownItem className="Navlink">{renderNavLink}</DropdownItem>
+    <DropdownItem className="Navlink">{renderNavLink()}</DropdownItem>
   ) : (
-    renderNavLink
+    renderNavLink()
   )
 }
 
@@ -51,14 +46,12 @@ NavItemLink.propTypes = {
   dropdownItem: PropTypes.bool.isRequired,
   route: PropTypes.string,
   title: PropTypes.string,
-  icon: PropTypes.object,
+  icon: PropTypes.node,
   onClick: PropTypes.func,
   onClickCallback: PropTypes.func,
-  render: PropTypes.object
+  render: PropTypes.node,
 }
-
-const isEqual = (prevProps, nextProps) => prevProps.title === nextProps.title
 
 NavItemLink.defaultProps = { dropdownItem: false }
 
-export default withRouter(memo(NavItemLink, isEqual))
+export default withRouter(memo(NavItemLink))

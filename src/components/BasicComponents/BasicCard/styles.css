@@ -1,0 +1,36 @@
+.BasicCard {
+  border: 0;
+  color: inherit;
+  height: 100%;
+  width: 100%;
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+.BasicCardHover {
+  transition: all 0.4s ease-in-out;
+}
+
+.BasicCardHover:hover {
+  color: inherit;
+  box-shadow: 0 0 8px 1px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.BasicCardContainer {
+  width: 100%;
+}
+
+.BasicCardBodyContainer {
+  background: var(--primaryColor);
+}
+
+.BasicCardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.BasicCardText {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

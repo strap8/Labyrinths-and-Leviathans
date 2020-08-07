@@ -1,10 +1,9 @@
 .Home {}
 
-.AboutFeatureIcon {
-  font-size: 8em;
+.HomeRow {
+  background: rgba(0, 0, 0, 0.5);
 }
 
-.AboutFeatureImage {
-  width: auto;
-  height: 128px;
+.AboutFeatureIcon {
+  font-size: 8em;
 }

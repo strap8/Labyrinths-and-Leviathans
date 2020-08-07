@@ -1,64 +1,60 @@
-import React, { Fragment, useState, useEffect, memo } from "react"
+import React, { useState, useEffect, useMemo, memo, Fragment } from "react"
 import PropTypes from "prop-types"
+import { BasicModal } from "../"
 import { Button } from "reactstrap"
-import BasicModal from "../BasicModal"
-import "./styles.css"
 
 const ConfirmAction = ({
-  onClickCallback,
-  buttonClassName,
+  button,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  size,
   disabled,
-  icon,
-  title
 }) => {
-  const [show, setShow] = useState(false)
+  const handleConfirm = () => {
+    onConfirm && onConfirm()
+  }
 
-  useEffect(() => {
-    return () => {
-      setShow(false)
-    }
-  }, [])
-
-  const toggleShow = () => setShow(!show)
+  const handleCancel = () => {
+    onCancel && onCancel()
+  }
 
   return (
     <BasicModal
-      button={
-        <Button
-          disabled={disabled}
-          color="inherit"
-          onClick={toggleShow}
-          className={buttonClassName}
-        >
-          {icon}
-        </Button>
-      }
+      size={size}
+      button={button}
       title={title}
-      footer={
-        <Fragment>
-          <Button color="danger" onClick={onClickCallback}>
-            Confirm
-          </Button>{" "}
-          <Button color="primary" onClick={toggleShow}>
-            Cancel
-          </Button>
-        </Fragment>
-      }
+      onSaveCallback={handleConfirm}
+      onCancelCallback={handleCancel}
+      disabled={disabled}
+      saveButton={<Button color="danger">Confirm</Button>}
+      cancelButton={<Button color="primary">Cancel</Button>}
     >
-      <span className="Center">
-        Are you sure you want to complete this action?
-      </span>
+      <span className="Center">{message}</span>
     </BasicModal>
   )
 }
 
 ConfirmAction.propTypes = {
-  onClickCallback: PropTypes.func.isRequired,
+  button: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   title: PropTypes.string,
-  icon: PropTypes.object,
-  buttonClassName: PropTypes.string
+  onConfirm: PropTypes.func,
+  onCancel: PropTypes.func,
+  size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
 }
 
-ConfirmAction.defaultProps = { show: false, disabled: false }
+ConfirmAction.defaultProps = {
+  title: "Delete",
+  button: (
+    <Button color="danger">
+      <i className="fas fa-trash-alt mr-1" />
+      Delete
+    </Button>
+  ),
+  message: "Are you sure you want to delete complete this action?",
+  size: "lg",
+  disabled: false,
+}
 
 export default memo(ConfirmAction)

@@ -1,10 +1,13 @@
-import { combineReducers } from "redux";
-import { User } from "./User";
-import { Resume } from "./Resume";
-import { Window } from "./Window";
+import { Alerts } from "./Alerts/reducer"
+import { App } from "./App/reducer"
+import { Podcasts } from "./Podcasts/reducer"
+import { Window } from "./Window/reducer"
 
-export const RootReducer = combineReducers({
-  User,
-  Resume,
-  Window
-});
+const rootReducer = {
+  Alerts,
+  App,
+  Podcasts,
+  Window,
+}
+
+export default rootReducer

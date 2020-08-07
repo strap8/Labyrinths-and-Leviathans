@@ -1,35 +1,50 @@
-import React from "react"
+import React, { useCallback } from "react"
 import PropTypes from "prop-types"
-import { connect as reduxConnect } from "react-redux"
+import { connect } from "../../store/provider"
 import { Toast, ToastHeader, ToastBody, Button } from "reactstrap"
 import { UseDebounce } from ".."
-import { ClearAlerts } from "../../redux/Alerts/actions"
-import { SetAppVersion } from "../../redux/App/actions"
+import { ClearAlerts } from "../../store/reducers/Alerts/actions"
 import "./styles.css"
 
-const mapStateToProps = ({ Alerts: { title, message } }) => ({ title, message })
-
-const mapDispatchToProps = { ClearAlerts, SetAppVersion }
-
-const AlertNotifications = ({
+const mapStateToProps = ({
+  Alerts: { title, message, timeout, serviceWorkerRegistration },
+}) => ({
   title,
   message,
-  alertInterval,
+  timeout,
+  serviceWorkerRegistration,
+})
+
+const mapDispatchToProps = { ClearAlerts }
+
+const AlertNotifications = ({
+  icon,
+  title,
+  message,
+  timeout,
+  serviceWorkerRegistration,
   ClearAlerts,
-  SetAppVersion
 }) => {
-  const appUpdate = title === "App Update"
+  const appUpdate = timeout === false
   const shouldShow = appUpdate || (title && message) ? true : false
 
-  const debounceClear = () => {
+  const handleClearAlerts = useCallback(() => {
     ClearAlerts()
-  }
+  }, [])
 
-  const handleOnClickCallback = () => {
-    SetAppVersion(new Date())
-    debounceClear()
-    setTimeout(() => window.location.reload(true), 1000)
-  }
+  const handleUpdate = useCallback(() => {
+    handleClearAlerts()
+    // serviceWorkerRegistration &&
+    //   serviceWorkerRegistration.waiting &&
+    //   serviceWorkerRegistration.waiting.postMessage({ type: "SKIP_WAITING" })
+    setTimeout(() => {
+      // const currentUrl = window.location.href
+      // window.close()
+      // window.open(currentUrl, "_blank")
+
+      window.location.reload()
+    }, 400)
+  }, [])
 
   return (
     <Toast
@@ -38,27 +53,26 @@ const AlertNotifications = ({
       appear={true}
       enter={true}
       exit={true}
+      fade={true}
       transition={{
         mountOnEnter: true,
         unmountOnExit: true,
-        timeout: 600
+        timeout: 600,
       }}
     >
       <UseDebounce
         debounceOnMount={!appUpdate}
-        onChangeCallback={debounceClear}
+        onChangeCallback={handleClearAlerts}
         value={shouldShow}
-        delay={1600}
+        delay={timeout}
       />
-      <ToastHeader icon={<i className="fas fa-feather-alt" />}>
-        {title}
-      </ToastHeader>
+      <ToastHeader icon={icon}>{title}</ToastHeader>
       <ToastBody>
         <h6>{message}</h6>
 
         {appUpdate && (
           <div className="Center">
-            <Button onClick={handleOnClickCallback} color="accent">
+            <Button onClick={handleUpdate} color="accent">
               Update
             </Button>
           </div>
@@ -69,16 +83,16 @@ const AlertNotifications = ({
 }
 
 AlertNotifications.propTypes = {
+  icon: PropTypes.node.isRequired,
   title: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
   ClearAlerts: PropTypes.func.isRequired,
-  SetAppVersion: PropTypes.func.isRequired,
-  alertInterval: PropTypes.number.isRequired
+  timeout: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]).isRequired,
 }
 
-AlertNotifications.defaultProps = { alertInterval: 3000 }
+AlertNotifications.defaultProps = {
+  icon: <i className="fas fa-feather-alt" />,
+  timeout: 3000,
+}
 
-export default reduxConnect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AlertNotifications)
+export default connect(mapStateToProps, mapDispatchToProps)(AlertNotifications)
