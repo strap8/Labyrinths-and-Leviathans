@@ -1,26 +1,19 @@
 import "./css/index.css"
-import React, { Suspense, lazy } from "react"
+import React, { Suspense } from "react"
 import ReactDOM from "react-dom"
 import App from "./App"
+import rootReducer from "./store/reducers"
 import { Router } from "react-router-dom"
 import { history } from "./store/reducers/router/reducer"
 import { LoadingScreen } from "./components"
 import { ContextProvider } from "./store/provider/provider"
-import rootReducer from "./store/reducers"
-import ReactGA from "react-ga"
 import * as serviceWorker from "./serviceWorker"
-import { getRandomInt } from "./utils"
+import ReactGA from "react-ga"
 
 const PERSIST_STORE_KEY = "store"
 const STORE = localStorage.getItem(PERSIST_STORE_KEY)
 
 const initialProviderState = STORE ? JSON.parse(STORE) : undefined
-
-const AlertNotifications = lazy(() =>
-  new Promise((resolve) => setTimeout(resolve, getRandomInt(0, 1))).then(() =>
-    import("./components/AlertNotifications")
-  )
-)
 
 // Initialize google analytics page view tracking
 history.listen((location) => {
@@ -41,7 +34,6 @@ ReactDOM.render(
     persistKey={PERSIST_STORE_KEY}
   >
     <Suspense fallback={<LoadingScreen />}>
-      <AlertNotifications />
       <Router history={history}>
         <App />
       </Router>

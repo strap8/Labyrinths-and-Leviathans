@@ -17,7 +17,7 @@ const BasicDropDown = ({
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  const toggle = () => setDropdownOpen(prevState => !prevState)
+  const toggle = () => setDropdownOpen((prevState) => !prevState)
 
   const renderList = () =>
     list.map((l, i) => {
@@ -50,13 +50,12 @@ const BasicDropDown = ({
           setMaxHeight: {
             enabled: true,
             // order: 890,
-            fn: data => ({
+            fn: (data) => ({
               ...data,
               styles: {
                 ...data.styles,
                 overflow: "auto",
                 maxHeight: 200
-                // backgroundColor: "var(--primaryColor)"
               }
             })
           }

@@ -12,20 +12,17 @@ import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  NavItem,
+  NavItem
 } from "reactstrap"
 import { AddToHomeScreen } from "../"
 import Hamburger from "./Hamburger"
 import NavItemLink from "./NavItemLink"
-import Contact from "../../views/Contact"
 import "./styles.css"
-
-const PodcastSearchBar = lazy(() => import("../PodcastSearchBar"))
 
 const { ABOUT, HOME, CONTACT, PRIVACY_POLICY } = RouteMap
 
 const mapStateToProps = ({ Window: { isMobile } }) => ({
-  isMobile,
+  isMobile
 })
 
 const NavBar = ({ isMobile, prompt, promptToInstall }) => {
@@ -39,17 +36,17 @@ const NavBar = ({ isMobile, prompt, promptToInstall }) => {
           <i className="fas fa-home NavBarImage" />
           HOME
         </span>
-      ),
+      )
     },
     {
       route: ABOUT,
       title: "ABOUT",
-      icon: <i className="fas fa-info-circle NavBarImage" />,
+      icon: <i className="fas fa-info-circle NavBarImage" />
     },
     {
       route: CONTACT,
       title: "CONTACT",
-      icon: <i className="fas fa-envelope NavBarImage" />,
+      icon: <i className="fas fa-envelope NavBarImage" />
     },
 
     {
@@ -63,7 +60,7 @@ const NavBar = ({ isMobile, prompt, promptToInstall }) => {
           dropdownItem: true,
           route: PRIVACY_POLICY,
           title: "PRIVACY POLICY",
-          icon: <i className="fas fa-user-secret NavBarImage" />,
+          icon: <i className="fas fa-user-secret NavBarImage" />
         },
         {
           render: (
@@ -74,10 +71,10 @@ const NavBar = ({ isMobile, prompt, promptToInstall }) => {
                 promptToInstall={promptToInstall}
               />
             </NavItem>
-          ),
-        },
-      ],
-    },
+          )
+        }
+      ]
+    }
   ]
 
   const toggleHamburgerMenu = () => setCollapse(!collapsed)
@@ -106,7 +103,7 @@ const NavBar = ({ isMobile, prompt, promptToInstall }) => {
     onSwipedUp: () => setCollapse(true),
     onSwipedDown: () => setCollapse(false),
     preventDefaultTouchmoveEvent: true,
-    trackMouse: true,
+    trackMouse: true
   })
 
   return (
@@ -120,8 +117,6 @@ const NavBar = ({ isMobile, prompt, promptToInstall }) => {
           />
         )}
 
-        <PodcastSearchBar />
-
         <Collapse isOpen={!collapsed} navbar>
           <Nav className="ml-auto" navbar>
             {renderNavLinks(navLinks)}
@@ -132,8 +127,6 @@ const NavBar = ({ isMobile, prompt, promptToInstall }) => {
   )
 }
 
-Navbar.propTypes = {
-  GetAllEntries: PropTypes.func,
-}
+Navbar.propTypes = {}
 
 export default connect(mapStateToProps)(NavBar)

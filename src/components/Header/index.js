@@ -1,5 +1,6 @@
 import React, { memo } from "react"
 import PropTypes from "prop-types"
+import { COLOR_VAR_MAP } from "../../css/variables/colors"
 import "./styles.css"
 
 const Header = ({ children, className, fill, color, ...restOfProps }) => {
@@ -27,7 +28,7 @@ Header.defaultProps = {
   children: <h1>Header</h1>,
   className: "Header Center",
   fill: "",
-  color: "var(--secondaryColor)",
+  color: COLOR_VAR_MAP.SECONDARY_COLOR,
   fontSize: "2em"
 }
 

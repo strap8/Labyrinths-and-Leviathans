@@ -2,7 +2,16 @@
 .App {
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   -ms-overflow-style: -ms-autohiding-scrollbar;
+  background: var(--primaryBackgroundGradient);
   /* color: white; */
+}
+
+body {
+  background-repeat: no-repeat;
+  overflow: hidden;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .RouteOverlay {
@@ -38,14 +47,6 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-}
-
-body {
-  background-repeat: no-repeat;
-  overflow: hidden;
-  margin: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 a,
@@ -93,19 +94,31 @@ input[type="password"] {
 
 ::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: var(--tertiarycolor);
+  color: var(--tertiarycolor) !important;
   opacity: 1;
   /* Firefox */
 }
 
+::-webkit-input-placeholder {
+  color: var(--tertiarycolor) !important;
+}
+
+::-moz-placeholder {
+  color: var(--tertiarycolor) !important;
+}
+
+::-ms-placeholder {
+  color: var(--tertiarycolor) !important;
+}
+
 :-ms-input-placeholder {
   /* Internet Explorer 10-11 */
-  color: var(--tertiarycolor);
+  color: var(--tertiarycolor) !important;
 }
 
 ::-ms-input-placeholder {
   /* Microsoft Edge */
-  color: var(--tertiarycolor);
+  color: var(--tertiarycolor) !important;
 }
 
 /* *:hover {

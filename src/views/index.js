@@ -1,6 +1,5 @@
 export { default as About } from "./About"
 export { default as Home } from "./Home"
 export { default as PageNotFound } from "./PageNotFound"
-export { default as PodcastDetail } from "./PodcastDetail"
 export { default as PrivacyPolicy } from "./PrivacyPolicy"
 export { default as Contact } from "./Contact"
