@@ -11,9 +11,9 @@ const mapStateToProps = ({ Podcasts: { items } }) => ({ podcasts: items })
 
 const Home = ({ podcasts, prompt, promptToInstall }) => {
   return (
-    <Container fluid tag="article" className="Home">
+    <article>
       <Canvas />
-    </Container>
+    </article>
   )
 }
 

@@ -116,7 +116,7 @@ const NavBar = ({ isMobile, prompt, promptToInstall }) => {
             collapsed={collapsed}
           />
         )}
-
+        <div style={{ height: 40 }} />
         <Collapse isOpen={!collapsed} navbar>
           <Nav className="ml-auto" navbar>
             {renderNavLinks(navLinks)}
