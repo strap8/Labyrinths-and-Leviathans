@@ -1,8 +1,7 @@
 @import "./animations/index.css";
 .App {
-  font-family: barlow, sans-serif;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   -ms-overflow-style: -ms-autohiding-scrollbar;
-  background-color: #f7efe2;
   /* color: white; */
 }
 
@@ -37,13 +36,6 @@
 .Overflow {
   flex-wrap: nowrap;
   white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.OverflowWrap {
-  flex-wrap: wrap;
-  white-space: pre-wrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
@@ -95,25 +87,25 @@ input[type="password"] {
   color: var(--secondaryColor);
 }
 
+/* input[type="file"] {
+  display: none;
+} */
+
 ::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: var(--light_grey);
+  color: var(--tertiarycolor);
   opacity: 1;
   /* Firefox */
 }
 
 :-ms-input-placeholder {
   /* Internet Explorer 10-11 */
-  color: var(--light_grey);
+  color: var(--tertiarycolor);
 }
 
 ::-ms-input-placeholder {
   /* Microsoft Edge */
-  color: var(--light_grey);
-}
-
-input[type="file"] {
-  display: none;
+  color: var(--tertiarycolor);
 }
 
 /* *:hover {
