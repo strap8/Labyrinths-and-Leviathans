@@ -62,9 +62,11 @@ const changeTheme = (darkMode) =>
     ? mapThemeProperties(DARK_MODE_THEME)
     : mapThemeProperties(LIGHT_MODE_THEME)
 
-const App = ({ userDarkMode }) => {
+const App = ({ userDarkMode, SetWindow }) => {
   const [prompt, promptToInstall] = useAddToHomescreenPrompt()
-  const handleResize = () => SetWindow()
+  const handleResize = () => {
+    SetWindow()
+  }
 
   useEffect(() => {
     changeTheme(userDarkMode)
