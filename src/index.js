@@ -31,7 +31,7 @@ ReactDOM.render(
   <ContextProvider
     rootReducer={rootReducer}
     initialState={initialProviderState}
-    persistKey={PERSIST_STORE_KEY}
+    // persistKey={PERSIST_STORE_KEY}
   >
     <Suspense fallback={<LoadingScreen />}>
       <Router history={history}>

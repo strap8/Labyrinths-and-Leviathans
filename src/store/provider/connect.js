@@ -102,13 +102,16 @@ const connect = (mapStateToProps, mapDispatchToProps) =>
        */
       const { state, dispatch } = React.useContext(ContextConsumer)
 
+
       const getState = React.useCallback(() => state, [state])
 
       // Memoize globalState
-      const stateToProps = mapStateToProps ? React.useMemo(
-        () => mapStateToProps(state, ownProps),
-        [state]
-      ) : null
+      const stateToProps = mapStateToProps
+        ? React.useMemo(() => mapStateToProps(state, ownProps), [
+            state,
+            ownProps
+          ])
+        : null
 
       // Memoize globalDispatch
       const dispatchToProps = React.useMemo(
@@ -149,8 +152,8 @@ const connect = (mapStateToProps, mapDispatchToProps) =>
           ...ownProps,
           // not all components need to dispatch actions so its optional
           ...(mapDispatchToProps && {
-            ...dispatchToProps,
-          }),
+            ...dispatchToProps
+          })
         }),
         [ownProps, stateToProps, dispatchToProps]
       )

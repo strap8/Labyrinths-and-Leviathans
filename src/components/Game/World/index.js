@@ -4,19 +4,27 @@ import { connect } from "../../../store/provider"
 import { GameMap, Creature } from "../../../components"
 
 const mapStateToProps = (
-  { Window: { innerHeight: heightFromStore, innerWidth: widthFromStore } },
+  {
+    Window: { innerHeight: heightFromStore, innerWidth: widthFromStore },
+    Atlas: {
+      World: { Creatures }
+    }
+  },
   { size, height: heightFromProps, width: widthFromProps }
 ) => ({
   height: size || heightFromProps || heightFromStore,
-  width: size || widthFromProps || widthFromStore
+  width: size || widthFromProps || widthFromStore,
+  Creatures
 })
 
-const World = ({ width, height }) => {
+const World = ({ width, height, Creatures }) => {
+  const renderCreatures = Creatures.map((c) => (
+    <Creature.Sprite {...c} worldWidth={width} worldHeight={height} />
+  ))
+
   return (
     <div style={{ position: "relative", width, height, margin: "0 auto" }}>
-      <GameMap>
-        <Creature.Sprite />
-      </GameMap>
+      <GameMap>{renderCreatures}</GameMap>
     </div>
   )
 }

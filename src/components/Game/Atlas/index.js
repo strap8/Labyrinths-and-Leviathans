@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import { connect } from "../../../store/provider"
 import { GameMap, Creature } from "../../../components"
 
-const mapStateToProps = ({ Podcasts: { items } }) => ({ podcasts: items })
+const mapStateToProps = ({   }) => ({  })
 
 const Atlas = ({}) => {
   return (

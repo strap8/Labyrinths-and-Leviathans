@@ -1,6 +1,5 @@
 import React, { lazy, memo } from "react"
 import PropTypes from "prop-types"
-import { YouTubeChannelProfile } from "../../store/reducers/Podcasts/propTypes"
 import { connect } from "../../store/provider"
 import { Container, Row, Col, Media, Jumbotron } from "reactstrap"
 import { PageNotFound } from ".."
@@ -11,9 +10,7 @@ import "./styles.css"
 
 const Footer = lazy(() => import("../../components/Footer"))
 
-const mapStateToProps = ({ Podcasts: { youTubeChannelProfile } }) => ({
-  youTubeChannelProfile,
-})
+const mapStateToProps = ({}) => ({})
 
 const About = ({}) => {
   return (
@@ -28,9 +25,8 @@ const About = ({}) => {
 }
 
 About.propTypes = {
-  youTubeChannelProfile: YouTubeChannelProfile,
   prompt: PropTypes.any,
-  promptToInstall: PropTypes.func.isRequired,
+  promptToInstall: PropTypes.func.isRequired
 }
 
 export default connect(mapStateToProps)(memo(About))

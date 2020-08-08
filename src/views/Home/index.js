@@ -1,13 +1,12 @@
 import React, { useMemo, memo } from "react"
 import PropTypes from "prop-types"
-import { PodcastsType } from "../../store/reducers/Podcasts/propTypes"
 import { connect } from "../../store/provider"
 import { Container, Row, Col, Button } from "reactstrap"
 import { World } from "../../components"
 import { RouterPush, RouteMap } from "../../store/reducers/router/actions"
 import "./styles.css"
 
-const mapStateToProps = ({ Podcasts: { items } }) => ({ podcasts: items })
+const mapStateToProps = ({}) => ({})
 
 const Home = ({ podcasts, prompt, promptToInstall }) => {
   return (
@@ -17,7 +16,7 @@ const Home = ({ podcasts, prompt, promptToInstall }) => {
   )
 }
 
-Home.propTypes = { podcasts: PodcastsType.isRequired }
+Home.propTypes = {}
 
 Home.defaultProps = {}
 
